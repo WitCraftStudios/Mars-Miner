@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Driller
   - Rocket
+  - Battery
   layers:
   - Default
   - TransparentFX
