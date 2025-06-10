@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
@@ -7,6 +7,7 @@ public class PlayerMovement : MonoBehaviour
     public float speed = 5f;
     public float gravity = -9.81f;
     public float jumpHeight = 1.5f;
+    public Transform cameraTransform; // 👈 Assign your main camera here
 
     private CharacterController controller;
     private Vector2 moveInput;
@@ -44,11 +45,28 @@ public class PlayerMovement : MonoBehaviour
             velocity.y = -2f;
 
         moveInput = inputActions.PlayerMovement.Move.ReadValue<Vector2>();
-        Vector3 move = transform.right * moveInput.x + transform.forward * moveInput.y;
+
+        // 🔁 CAMERA-RELATIVE MOVEMENT
+        Vector3 forward = cameraTransform.forward;
+        Vector3 right = cameraTransform.right;
+        forward.y = 0f;
+        right.y = 0f;
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 move = forward * moveInput.y + right * moveInput.x;
         controller.Move(move * speed * Time.deltaTime);
 
+        // Gravity and jump
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+
+        // Optional: Rotate player toward movement direction
+        if (move.magnitude > 0.1f)
+        {
+            Quaternion toRotation = Quaternion.LookRotation(move, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
+        }
     }
 
     void OnJump(InputAction.CallbackContext context)

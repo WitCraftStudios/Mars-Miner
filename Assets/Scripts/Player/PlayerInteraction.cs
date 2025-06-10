@@ -27,14 +27,31 @@ public class PlayerInteraction : MonoBehaviour
 
     void OnInteract(InputAction.CallbackContext context)
     {
-        Ray ray = new Ray(transform.position, transform.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, interactRange, interactLayer))
+        Vector3 origin = transform.position + Vector3.up; // slightly above ground
+        Vector3 direction = transform.forward;
+
+        float radius = 0.5f; // adjust as needed
+
+        Debug.DrawRay(origin, direction * interactRange, Color.red, 2f);
+
+        if (Physics.SphereCast(origin, radius, direction, out RaycastHit hit, interactRange, interactLayer))
         {
+            Debug.Log("Hit object: " + hit.collider.name);
+
             IInteractable interactable = hit.collider.GetComponent<IInteractable>();
             if (interactable != null)
             {
-                interactable.Interact(gameObject);  // Pass the player GameObject here
+                Debug.Log("Interacting with: " + hit.collider.name);
+                interactable.Interact(gameObject);
             }
         }
+        else
+        {
+            Debug.Log("No interactable hit.");
+        }
     }
+
+
+
+
 }
