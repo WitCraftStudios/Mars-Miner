@@ -3,10 +3,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    public float interactRange = 3f;
-    public LayerMask interactLayer;
-
     private PlayerControls inputActions;
+    private IInteractable currentInteractable;
 
     private void Awake()
     {
@@ -25,33 +23,39 @@ public class PlayerInteraction : MonoBehaviour
         inputActions.PlayerMovement.Disable();
     }
 
-    void OnInteract(InputAction.CallbackContext context)
+    private void OnTriggerEnter(Collider other)
     {
-        Vector3 origin = transform.position + Vector3.up; // slightly above ground
-        Vector3 direction = transform.forward;
-
-        float radius = 0.5f; // adjust as needed
-
-        Debug.DrawRay(origin, direction * interactRange, Color.red, 2f);
-
-        if (Physics.SphereCast(origin, radius, direction, out RaycastHit hit, interactRange, interactLayer))
+        if (other.TryGetComponent(out IInteractable interactable))
         {
-            Debug.Log("Hit object: " + hit.collider.name);
+            currentInteractable = interactable;
+            Debug.Log("Entered interaction zone: " + other.name);
 
-            IInteractable interactable = hit.collider.GetComponent<IInteractable>();
-            if (interactable != null)
-            {
-                Debug.Log("Interacting with: " + hit.collider.name);
-                interactable.Interact(gameObject);
-            }
+            InteractionPromptManager.Instance.ShowPrompt("Press [E]");
         }
-        else
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.TryGetComponent(out IInteractable interactable) && currentInteractable == interactable)
         {
-            Debug.Log("No interactable hit.");
+            currentInteractable = null;
+            Debug.Log("Exited interaction zone: " + other.name);
+
+            InteractionPromptManager.Instance.HidePrompt();
         }
     }
 
 
-
-
+    private void OnInteract(InputAction.CallbackContext context)
+    {
+        if (currentInteractable != null)
+        {
+            currentInteractable.Interact(gameObject);
+            Debug.Log("Interacted with: " + currentInteractable);
+        }
+        else
+        {
+            Debug.Log("No interactable in range.");
+        }
+    }
 }

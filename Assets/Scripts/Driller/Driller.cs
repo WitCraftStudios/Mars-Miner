@@ -5,7 +5,7 @@ public class Driller : MonoBehaviour, IInteractable
     RocketCapsule capsule;
     public bool isRunning = false;
     public float batteryProductionTime = 10f;
-    private float batteryTimer;
+    public float batteryTimer;
 
     [Header("Battery")]
     public GameObject batteryObject; // scene object (battery)
@@ -54,6 +54,11 @@ public class Driller : MonoBehaviour, IInteractable
         Debug.Log("Driller toggled: " + (isRunning ? "ON" : "OFF"));
     }
 
+    public string GetInteractionPrompt()
+    {
+        return "Press [E]";  // or whatever prompt text you want
+    }
+
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;
@@ -94,6 +99,7 @@ public class Driller : MonoBehaviour, IInteractable
             Debug.Log("Battery collected. Driller will produce a new one after delay.");
         }
     }
+
 
 
 }

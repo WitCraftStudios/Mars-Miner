@@ -7,6 +7,7 @@ TagManager:
   - Driller
   - Rocket
   - Battery
+  - Pet
   layers:
   - Default
   - TransparentFX
